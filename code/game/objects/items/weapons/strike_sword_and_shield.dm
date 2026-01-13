@@ -16,17 +16,24 @@
 	worn_icon_state = "vali_claymore"
 	equip_slot_flags = ITEM_SLOT_BELT|ITEM_SLOT_BACK|ITEM_SLOT_SUITSTORE
 	resistance_flags = UNACIDABLE
+	var/wield_delay = 1 SECONDS
 
 /obj/item/weapon/twohanded/glaive/Strike_Sword_and_Shield/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/shield, SHIELD_TOGGLE|SHIELD_PURE_BLOCKING, list(MELEE = 30, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 15, BIO = 50, FIRE = 15, ACID = 15))
-	AddComponent(/datum/component/stun_mitigation, SHIELD_TOGGLE, shield_cover = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 80, FIRE = 15, ACID = 30))
+	AddComponent(/datum/component/shield)
 	AddElement(/datum/element/strappable)
 
 /obj/item/weapon/twohanded/glaive/Strike_Sword_and_Shield/wield(mob/user)
 	. = ..()
-	if(!.)
+
+	if (!(item_flags & WIELDED))
 		return
+
+	if(wield_delay > 0)
+		if (!do_after(user, wield_delay, IGNORE_LOC_CHANGE, user, BUSY_ICON_HOSTILE, null, PROGRESS_CLOCK))
+			unwield(user)
+			return
+
 	toggle_item_bump_attack(user, TRUE)
 	penetration = 25
 	soft_armor = list(MELEE = 60, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 80, FIRE = 15, ACID = 30)
