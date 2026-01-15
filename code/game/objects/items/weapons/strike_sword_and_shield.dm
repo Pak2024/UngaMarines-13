@@ -21,7 +21,7 @@
 
 /obj/item/weapon/twohanded/glaive/Strike_Sword_and_Shield/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/shield, SHIELD_PARENT_INTEGRITY, list(MELEE = 100, BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 80, BIO = 30, FIRE = 50, ACID = 80))
+	AddComponent(/datum/component/shield, SHIELD_PARENT_INTEGRITY)
 	AddComponent(/datum/component/stun_mitigation)
 	AddElement(/datum/element/strappable)
 
@@ -38,7 +38,6 @@
 
 	toggle_item_bump_attack(user, TRUE)
 	penetration = 25
-	soft_armor = list(MELEE = 100, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 80, FIRE = 15, ACID = 30)
 
 /obj/item/weapon/twohanded/glaive/Strike_Sword_and_Shield/unwield(mob/user)
 	. = ..()
