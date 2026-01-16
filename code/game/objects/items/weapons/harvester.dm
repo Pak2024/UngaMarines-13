@@ -186,14 +186,14 @@
 	force_activated = 75
 	attack_speed = 12
 	reach = 2
-	var/wield_delay = 0.8 SECONDS
+	var/wield_delay = 1 SECONDS
 	resistance_flags = UNACIDABLE
 
-/obj/item/weapon/twohanded/glaive/harvester/Initialize(mapload)
+/obj/item/weapon/twohanded/glaive/whip_blade/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/harvester, 45)
 
-/obj/item/weapon/twohanded/glaive/harvester/wield(mob/user)
+/obj/item/weapon/twohanded/glaive/whip_blade/wield(mob/user)
 	. = ..()
 
 	if (!(item_flags & WIELDED))
@@ -207,7 +207,7 @@
 	attack_speed = 18
 	reach = 1
 
-/obj/item/weapon/twohanded/glaive/harvester/unwield(mob/user)
+/obj/item/weapon/twohanded/glaive/whip_blade/unwield(mob/user)
 	. = ..()
 	if(!.)
 		return
