@@ -171,3 +171,46 @@
 			return
 
 	user.add_movespeed_modifier(MOVESPEED_ID_WIELDED_SLOWDOWN, TRUE, 0, NONE, TRUE, wielded_slowdown)
+
+/obj/item/weapon/twohanded/glaive/whip_blade
+	name = "\improper HP-B Harvester Whip-Blade"
+	desc = "A double-edged sword with an experimental sliding blade system for increased attack range. Can be used in close-range and short-to-medium combat."
+	icon = 'icons/obj/items/vali.dmi'
+	icon_state = "vali_claymore"
+	worn_icon_list = list(
+		slot_l_hand_str = 'icons/mob/inhands/weapons/vali_left.dmi',
+		slot_r_hand_str = 'icons/mob/inhands/weapons/vali_right.dmi',
+	)
+	worn_icon_state = "vali_claymore"
+	force = 60
+	force_activated = 75
+	attack_speed = 12
+	reach = 2
+	var/wield_delay = 0.8 SECONDS
+	resistance_flags = UNACIDABLE
+
+/obj/item/weapon/twohanded/glaive/harvester/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/harvester, 45)
+
+/obj/item/weapon/twohanded/glaive/harvester/wield(mob/user)
+	. = ..()
+
+	if (!(item_flags & WIELDED))
+		return
+
+	if(wield_delay > 0)
+		if (!do_after(user, wield_delay, IGNORE_LOC_CHANGE, user, BUSY_ICON_HOSTILE, null, PROGRESS_CLOCK))
+			unwield(user)
+			return
+
+	attack_speed = 18
+	reach = 1
+
+/obj/item/weapon/twohanded/glaive/harvester/unwield(mob/user)
+	. = ..()
+	if(!.)
+		return
+
+	attack_speed = 12
+	reach = 2
