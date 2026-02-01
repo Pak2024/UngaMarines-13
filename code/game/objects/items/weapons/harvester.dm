@@ -186,12 +186,18 @@
 	force_activated = 75
 	attack_speed = 12
 	reach = 2
-	var/wield_delay = 1 SECONDS
+	var/wield_delay = 6 SECONDS
 	resistance_flags = UNACIDABLE
+	var/datum/action/ability/activable/weapon_skill/whip_blade/special_attack
 
 /obj/item/weapon/twohanded/glaive/whip_blade/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/harvester, 45)
+	special_attack = new(src, force_activated, penetration)
+
+/obj/item/weapon/twohanded/glaive/whip_blade/Destroy()
+	QDEL_NULL(special_attack)
+	return ..()
 
 /obj/item/weapon/twohanded/glaive/whip_blade/wield(mob/user)
 	. = ..()
@@ -199,13 +205,15 @@
 	if (!(item_flags & WIELDED))
 		return
 
-	if(wield_delay > 0)
-		if (!do_after(user, wield_delay, IGNORE_LOC_CHANGE, user, BUSY_ICON_HOSTILE, null, PROGRESS_CLOCK))
-			unwield(user)
-			return
+	if(special_attack.action_cooldown_check() == TRUE)
+		to_chat(user, span_warning("The weapon is still recharging!"))
+		unwield(user)
+		return
 
 	attack_speed = 18
 	reach = 1
+	special_attack.give_action(user)
+	toggle_item_bump_attack(user, TRUE)
 
 /obj/item/weapon/twohanded/glaive/whip_blade/unwield(mob/user)
 	. = ..()
@@ -214,3 +222,33 @@
 
 	attack_speed = 12
 	reach = 2
+	special_attack?.remove_action(user)
+	toggle_item_bump_attack(user, FALSE)
+
+/datum/action/ability/activable/weapon_skill/whip_blade
+	name = "Lunge"
+	action_icon_state = "axe_sweep"
+	desc = "A powerful piercing strike with extended range (2 tiles), dealing 75 damage and ignoring all of the target's armor. After the attack, you switch to a one-handed grip for 5 seconds, losing the ability to wield your weapon with both hands."
+	cooldown_duration = 6 SECONDS
+	keybinding_signals = list(
+		KEYBINDING_NORMAL = COMSIG_WEAPONABILITY_AXESWEEP,
+	)
+
+/datum/action/ability/activable/weapon_skill/whip_blade/use_ability(atom/A)
+	add_cooldown()
+	var/mob/living/carbon/carbon_owner = owner
+	carbon_owner.face_atom(A)
+	playsound(owner, 'sound/effects/alien/tail_swipe3.ogg', 50, 0, 5)
+	owner.visible_message(span_danger("[owner] Swing their weapon in a deadly arc!"))
+
+	var/list/atom/movable/atoms_to_ravage = get_step(owner, owner.dir).contents.Copy()
+	for(var/atom/movable/victim AS in atoms_to_ravage)
+		if((victim.resistance_flags & INDESTRUCTIBLE))
+			continue
+		if(!isxeno(victim))
+			return
+		var/mob/living/carbon/xenomorph/xeno_victim = victim
+		if(xeno_victim.lying_angle)
+			continue
+		xeno_victim.apply_damage(75, BRUTE, BODY_ZONE_CHEST, MELEE, TRUE, TRUE, TRUE, 100)
+		playsound(xeno_victim, 'sound/weapons/wristblades_hit.ogg', 25, 0, 5)
