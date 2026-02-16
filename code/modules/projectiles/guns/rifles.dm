@@ -81,6 +81,7 @@
 		/obj/item/attachable/shoulder_mount,
 		/obj/item/weapon/gun/energy/lasgun/lasrifle/pocket_beam,
 		/obj/item/weapon/gun/flamer/hydro_cannon,
+		/obj/item/attachable/muzzle/smart_choke,
 	)
 
 	gun_features_flags = GUN_CAN_POINTBLANK|GUN_AMMO_COUNTER|GUN_SMOKE_PARTICLES

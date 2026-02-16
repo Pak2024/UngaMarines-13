@@ -94,3 +94,10 @@
 	icon_state = "rapidfire"
 	slot = ATTACHMENT_SLOT_UNDER
 	burst_mod = 2
+
+// --- RuTGMC ---
+/obj/item/attachable/underbarrel/blocker
+	name = "SMT Power Structure"
+	slot = ATTACHMENT_SLOT_UNDER
+	attach_features_flags = NONE
+// --- RuTGMC ---

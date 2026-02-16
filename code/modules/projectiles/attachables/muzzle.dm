@@ -262,3 +262,35 @@
 	recoil_unwielded_mod = -1
 	accuracy_mod = 0
 	accuracy_unwielded_mod = 0.15
+
+// --- RuTGMC ---
+/obj/item/attachable/muzzle/smart_choke
+	name = "Smart Targeting Module"
+	desc = "Продвинутая насадка на ствол, использующая магнитные поля для корректировки траектории пули в сторону ксеноморфов. Из-за громоздкой системы охлаждения и питания блокирует подствольный слот."
+	icon = 'icons/obj/items/attachments/attachments.dmi'
+	icon_state = "smt"
+	slot = ATTACHMENT_SLOT_MUZZLE
+	attach_shell_speed_mod = 0.9
+	accuracy_mod = -0.1
+
+	var/obj/item/attachable/underbarrel/blocker/my_blocker
+
+/obj/item/attachable/muzzle/smart_choke/can_attach(obj/item/weapon/gun/G, mob/user)
+    if(G.attachments_by_slot[ATTACHMENT_SLOT_UNDER])
+        if(user) to_chat(user, span_warning("Вы не можете прикрепить [src], так как подствольный слот занят!"))
+        return FALSE
+    return ..()
+
+/obj/item/attachable/muzzle/smart_choke/on_attach(obj/item/weapon/gun/G, mob/user)
+    ..()
+    my_blocker = new /obj/item/attachable/underbarrel/blocker(G)
+    G.attachments_by_slot[ATTACHMENT_SLOT_UNDER] += my_blocker
+
+/obj/item/attachable/muzzle/smart_choke/on_detach(obj/item/weapon/gun/G, mob/user)
+    ..()
+    if(my_blocker)
+        if(G.attachments_by_slot[ATTACHMENT_SLOT_UNDER] == my_blocker)
+            G.attachments_by_slot[ATTACHMENT_SLOT_UNDER] = null
+        qdel(my_blocker)
+        my_blocker = null
+// --- RuTGMC ---

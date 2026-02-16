@@ -304,6 +304,12 @@
 
 		var/list/attachment_data = attachment_data_by_slot[slot]
 
+// --- RuTGMC ---
+		if(!attachment_data)
+			attachable_overlays[slot] = null
+			continue
+// --- RuTGMC ---
+
 		var/icon = attachment_data[OVERLAY_ICON]
 		var/icon_state = attachment.icon_state
 		if(attachment.greyscale_colors && attachment.greyscale_config)
@@ -394,6 +400,12 @@
 		if(!attachment)
 			continue
 		var/list/attachment_data = attachment_data_by_slot[slot]
+
+// --- RuTGMC ---
+		if(!attachment_data)
+			continue
+// --- RuTGMC ---
+
 		if(attachment_data[ATTACHMENT_LAYER])
 			wearer.remove_overlay(attachment_data[ATTACHMENT_LAYER])
 

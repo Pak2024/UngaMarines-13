@@ -1775,6 +1775,12 @@
 		if(living_firer.has_status_effect(STATUS_EFFECT_STAGGER))
 			projectile_to_fire.damage *= STAGGER_DAMAGE_MULTIPLIER
 
+// --- RuTGMC ---
+	var/obj/item/attachable/muzzle/smart_choke/sc = attachments_by_slot[ATTACHMENT_SLOT_MUZZLE]
+	if(istype(sc))
+		projectile_to_fire.homing_xeno = TRUE
+// --- RuTGMC --
+
 ///Sets the projectile accuracy and scatter
 /obj/item/weapon/gun/proc/setup_bullet_accuracy()
 	SIGNAL_HANDLER

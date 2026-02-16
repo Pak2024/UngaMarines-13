@@ -113,6 +113,8 @@
 	var/point_blank_range = 0
 	/// List of atoms already hit by that projectile. Will only matter for projectiles capable of passing through multiple atoms
 	var/list/atom/hit_atoms = list()
+	// --- RuTGMC ---
+	var/homing_xeno = FALSE
 
 /atom/movable/projectile/Initialize(mapload)
 	. = ..()
@@ -409,6 +411,53 @@ So if we are on the 32th absolute pixel coordinate we are on tile 1, but if we a
 		distance_travelled++
 		//Here we take the projectile's absolute pixel coordinate + the travelled distance and use PROJ_ABS_PIXEL_TO_TURF to first convert it into tile coordinates, and then use those to locate the turf.
 		var/turf/next_turf = PROJ_ABS_PIXEL_TO_TURF((apx + x_pixel_dist_travelled + (32 * x_offset)), (apy + y_pixel_dist_travelled + (32 * y_offset)), z)
+
+// --- RuTGMC ---
+		if(homing_xeno && next_turf && next_turf != last_processed_turf)
+			// Вычисляем направление, если оно еще не задано
+			var/temp_movement_dir = get_dir(last_processed_turf, next_turf)
+			if(!temp_movement_dir) temp_movement_dir = dir
+
+			// Список для сбора потенциальных целей (чтобы выбрать случайно)
+			var/list/valid_targets = list()
+			// Проверяем направления слева и справа
+			var/list/check_dirs = list(turn(temp_movement_dir, 90), turn(temp_movement_dir, -90))
+
+			for(var/side_dir in check_dirs)
+				var/turf/side_turf = get_step(next_turf, side_dir)
+				if(!side_turf) continue
+
+				var/mob/living/carbon/xenomorph/target = locate() in side_turf
+
+				// ПРОВЕРКИ:
+				// 1. target: Ксенос есть
+				// 2. stat != DEAD: Ксенос жив
+				// 3. body_position != LYING_DOWN: Ксенос СТОИТ (не лежит)
+				// (Если body_position выдаст ошибку, замените на !target.knocked_down)
+				if(target && target.stat != DEAD)
+					valid_targets += target
+
+			// Если нашли хотя бы одну цель
+			if(length(valid_targets))
+				// Выбираем случайную цель из списка (50/50 если их две)
+				var/mob/living/carbon/xenomorph/chosen_victim = pick(valid_targets)
+				var/turf/victim_loc = chosen_victim.loc
+
+				// Телепортируем пулю в цель
+				forceMove(victim_loc)
+				// Наносим удар
+				chosen_victim.do_projectile_hit(src)
+
+				// ВАЖНО: Останавливаем полет пули
+				if(QDELETED(src))
+					return PROJECTILE_HIT // Пуля исчезла - всё ок
+
+				// Если пуля не исчезла (броня/рикошет), мы все равно считаем это попаданием
+				// и запрещаем ей лететь дальше по старому маршруту.
+				hit_atoms += chosen_victim
+				return PROJECTILE_HIT
+// --- RuTGMC ---
+
 		if(!next_turf) //Map limit.
 			end_of_movement = (i-- || 1)
 			break
